@@ -1,0 +1,12 @@
+# Gizli - ASLA commit'lenmemeli (API anahtarlari, tokenlar burada)
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Yerel durum dosyalari (repoda tutmaya gerek yok)
+gonderilen_sinyaller.json
+
+# NOT: gemini_log.jsonl BILEREK ignore EDILMEZ - o bizim biriken verimiz,
+# GitHub Actions her gun repoya commit'ler.

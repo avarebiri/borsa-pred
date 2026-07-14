@@ -1,0 +1,9 @@
+# Gunluk Gemini tarama (GitHub Actions) icin calisma bagimliliklari.
+# NOT: torch burada YOK - o sadece dl_model.py (yerel arastirma) icin gerekir;
+# gunluk taramayi hafif ve hizli tutmak icin dahil edilmedi.
+yfinance
+pandas
+numpy
+google-genai
+pydantic
+python-dotenv

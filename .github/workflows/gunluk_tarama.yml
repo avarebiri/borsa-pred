@@ -1,0 +1,53 @@
+name: Gunluk Gemini Tarama
+
+# Her hafta ici, BIST kapanisindan sonra otomatik calisir.
+# 15:45 UTC ~ 18:45 Turkiye saati (BIST 18:00'de kapanir).
+# NOT: GitHub cron UTC'dir ve yogunlukta birkac dakika gecikebilir - sorun degil.
+on:
+  schedule:
+    - cron: "45 15 * * 1-5"
+  workflow_dispatch: {}   # "Run workflow" ile elle de tetiklenebilir
+
+permissions:
+  contents: write         # gemini_log.jsonl'i repoya commit edebilmek icin
+
+# Ayni anda birden fazla calismayi engelle (log commit cakismasin)
+concurrency:
+  group: gunluk-tarama
+  cancel-in-progress: false
+
+jobs:
+  tara:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Bagimliliklar
+        run: pip install -r requirements.txt
+
+      - name: Tarama (BIST + Gemini + Telegram)
+        env:
+          GEMINI_BACKEND: aistudio
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-2.5-flash
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python gemini_tara.py bist
+
+      - name: Log'u repoya commit et
+        run: |
+          git config user.name "gemini-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add gemini_log.jsonl
+          if git diff --cached --quiet; then
+            echo "Yeni sinyal yok, commit atlanıyor."
+          else
+            git commit -m "Gunluk tarama: $(date -u +%Y-%m-%d)"
+            git push
+          fi
