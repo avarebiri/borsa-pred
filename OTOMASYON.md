@@ -50,8 +50,20 @@ git pull                      # birikmiş logu çek
 python gemini_degerlendir.py  # ileriye dönük kâğıt-trade, al&tut'a karşı
 ```
 
+## Ücretsiz tier limitleri (önemli)
+`gemini-2.5-flash` ücretsiz tier (2026): **250 istek/gün**, **10 istek/dakika**.
+- Günlük ~100 BIST hissesi 250/gün sınırına rahat sığar.
+- 10/dakika sınırı için tarayıcı çağrılar arası bekler (`config.GEMINI_RPM`, varsayılan
+  10 → 6 sn) ve `429` olursa tekrar dener. Tam tarama ~10-15 dk sürer (Actions 45 dk
+  limitine sığar).
+- 250/gün **proje başına**. BIST tek başına sorunsuz; BIST **+** ABD aynı gün (~206)
+  sınıra yaklaşır — ikisini birden istersen ücretli tier'a geç (`GEMINI_RPM`'i de büyüt).
+- Ücretli tier'a geçince `.env`/secret'a `GEMINI_RPM=<yeni deger>` ekle, bekleme azalır.
+
 ## Notlar
 - ABD taraması için cron komutunu `python gemini_tara.py abd` yap (ABD kapanışı
   farklı saat — 21:00 UTC civarı uygun).
 - yfinance bazı hisselerde veri vermeyebilir; o hisseler atlanır, sorun değil.
-- Ücret: `gemini-2.5-flash` çok ucuz; günde ~100 hisse kuruşlar.
+- Ücret: `gemini-2.5-flash` çok ucuz; ücretli tier'da bile günde ~100 hisse kuruşlar.
+- Vertex (yerel) faturalandırması dönem dönem kapanabiliyor; **bulut otomasyonu AI
+  Studio key kullandığı için bundan etkilenmez** — bu yüzden Actions'ta AI Studio seçtik.

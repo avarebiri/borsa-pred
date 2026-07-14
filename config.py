@@ -36,6 +36,9 @@ GEMINI_LOCATION = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")               # sadece aistudio icin
 # Analiz modeli. Hizli/ucuz: gemini-2.5-flash ; derin akil: gemini-2.5-pro
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+# Dakikada istek siniri (RPM). Ucretsiz tier gemini-2.5-flash = 10 RPM.
+# Tarayici bu hiza gore bekler; ucretli tier'a gecersen buyut (daha az bekleme).
+GEMINI_RPM = int(os.getenv("GEMINI_RPM", "10"))
 
 # ---------------------------------------------------------------------------
 # IZLENECEK HISSELER  (BIST 30 - likit buyuk hisseler)

@@ -17,12 +17,16 @@ Ayni gun ikinci kez calistirilirsa, o gun ZATEN analiz edilmis hisseler atlanir
 """
 import sys
 import json
+import time
 import datetime
 
 import config
 import backtest
 import strateji
 import gemini_analist as ga
+
+# Ucretsiz tier RPM'ini asmamak icin cagrilar arasi bekleme (saniye)
+CAGRI_ARASI = 60.0 / max(config.GEMINI_RPM, 1)
 
 
 def bugun_loglananlar() -> set:
@@ -92,6 +96,7 @@ def main():
             ga.logla(kod, oz, s)
             gruplar[s.sinyal].append((isim, s))
             print(f"  {isim:<8} {s.sinyal:<5} (guven {s.guven}, skor {s.skor:+.2f})")
+            time.sleep(CAGRI_ARASI)  # RPM sinirina saygi (ucretsiz tier)
         except Exception as e:
             print(f"  {isim:<8} HATA -> {e}")
 

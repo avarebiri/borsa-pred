@@ -17,6 +17,7 @@ motoruna (top-N kagit-trade) baglanabilir.
 """
 import sys
 import json
+import time
 import datetime
 from typing import Literal
 
@@ -134,17 +135,27 @@ def analiz_et(client, kod: str, df: pd.DataFrame, zengin: bool = True) -> HisseS
             pass  # zenginlestirme basarisizsa teknikle devam
     girdi += "\n\nTum bu bilgileri tartarak kisa vadeli sinyalini uret."
 
-    cevap = client.models.generate_content(
-        model=config.GEMINI_MODEL,
-        contents=girdi,
-        config=types.GenerateContentConfig(
-            system_instruction=SISTEM_TALIMATI,
-            response_mime_type="application/json",
-            response_schema=HisseSinyali,
-            temperature=0.2,
-        ),
+    ayar = types.GenerateContentConfig(
+        system_instruction=SISTEM_TALIMATI,
+        response_mime_type="application/json",
+        response_schema=HisseSinyali,
+        temperature=0.2,
     )
-    return cevap.parsed
+    # 429 (rate limit) olursa bekleyip tekrar dene (ucretsiz tier 10 RPM)
+    for deneme in range(4):
+        try:
+            cevap = client.models.generate_content(
+                model=config.GEMINI_MODEL, contents=girdi, config=ayar,
+            )
+            return cevap.parsed
+        except Exception as e:
+            msg = str(e)
+            if ("429" in msg or "RESOURCE_EXHAUSTED" in msg) and deneme < 3:
+                bekle = 20 * (deneme + 1)  # 20s, 40s, 60s artan bekleme
+                print(f"    [rate limit, {bekle}s bekleniyor...]")
+                time.sleep(bekle)
+                continue
+            raise
 
 
 def logla(kod: str, oz: dict, sinyal: HisseSinyali) -> None:
